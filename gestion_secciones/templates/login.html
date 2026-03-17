@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Ingreso al sistema</title>
+</head>
+
+<body>
+
+<h2>Ingreso al Panel de Cumplimiento</h2>
+
+<form method="post">
+{% csrf_token %}
+
+<label>Usuario</label>
+<br>
+<input type="text" name="username">
+
+<br><br>
+
+<label>Contraseña</label>
+<br>
+<input type="password" name="password">
+
+<br><br>
+
+<button type="submit">Entrar</button>
+
+</form>
+
+</body>
+</html>

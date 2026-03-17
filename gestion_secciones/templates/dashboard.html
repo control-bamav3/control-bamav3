@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Panel de Cumplimiento</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="manifest" href="/static/manifest.json">
+<meta name="theme-color" content="#2c3e50">
+
+<style>
+
+body{
+font-family: Arial;
+margin:20px;
+background:#f4f4f4;
+}
+
+h1{
+margin-bottom:10px;
+}
+
+a{
+text-decoration:none;
+}
+
+/* TARJETAS DE SECCIONES */
+
+.contenedor{
+display:flex;
+flex-direction:column;
+gap:20px;
+margin-top:20px;
+}
+
+.tarjeta{
+border:1px solid #ddd;
+border-radius:10px;
+padding:15px;
+background:white;
+box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+.tarjeta h2{
+margin:0 0 5px 0;
+}
+
+.barra{
+width:100%;
+background:#eee;
+border-radius:5px;
+margin-top:10px;
+}
+
+.progreso{
+height:20px;
+border-radius:5px;
+}
+
+.boton{
+display:inline-block;
+margin-top:12px;
+padding:10px;
+background:#2c3e50;
+color:white;
+border-radius:6px;
+font-size:15px;
+}
+
+.boton:hover{
+background:#1a252f;
+}
+
+.resumen{
+margin-top:20px;
+font-size:18px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Panel de Cumplimiento</h1>
+
+<a href="/historial/" style="font-size:18px;">
+Ver historial de plazos
+</a>
+
+<h2>Gráfico de cumplimiento por sección</h2>
+
+<canvas id="graficoCumplimiento"></canvas>
+
+<div class="resumen">
+
+<span style="color:green; font-weight:bold;">
+Cumplidos: {{ cumplidos }}
+</span>
+
+&nbsp;&nbsp;
+
+<span style="color:orange; font-weight:bold;">
+En proceso: {{ en_proceso }}
+</span>
+
+&nbsp;&nbsp;
+
+<span style="color:red; font-weight:bold;">
+Pendientes: {{ pendientes }}
+</span>
+
+</div>
+
+<div class="contenedor">
+
+{% for s in secciones %}
+
+<div class="tarjeta">
+
+<h2>{{ s.nombre_seccion }}</h2>
+
+<p><strong>Responsable:</strong> {{ s.responsable }}</p>
+
+<div class="barra">
+
+<div class="progreso"
+style="width: {{ s.porcentaje_cumplimiento }}%;
+background:
+{% if s.porcentaje_cumplimiento == 100 %}
+green
+{% elif s.porcentaje_cumplimiento > 0 %}
+orange
+{% else %}
+red
+{% endif %}
+;">
+</div>
+
+</div>
+
+<p>
+{{ s.plazos_cumplidos }} / {{ s.total_plazos }}
+({{ s.porcentaje_cumplimiento }}%)
+</p>
+
+<a class="boton" href="/seccion/{{ s.id }}/">
+Ver plazos
+</a>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+const ctx = document.getElementById('graficoCumplimiento');
+
+new Chart(ctx, {
+
+type: 'bar',
+
+data: {
+labels: {{ nombres_secciones|safe }},
+datasets: [{
+label: 'Cumplimiento (%)',
+data: {{ porcentajes|safe }},
+backgroundColor: {{ colores|safe }}
+}]
+},
+
+options: {
+scales: {
+y: {
+beginAtZero: true,
+max: 100
+}
+}
+}
+
+});
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Historial de Plazos</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+
+body{
+font-family: Arial;
+margin:20px;
+background:#f4f4f4;
+}
+
+.filtro{
+background:white;
+padding:15px;
+border-radius:10px;
+margin-bottom:20px;
+box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+.filtro select, .filtro button{
+padding:8px;
+margin-top:5px;
+width:100%;
+}
+
+.contenedor{
+display:flex;
+flex-direction:column;
+gap:15px;
+}
+
+.tarjeta{
+background:white;
+padding:15px;
+border-radius:10px;
+box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+.estado{
+font-weight:bold;
+}
+
+.cumplido{
+color:green;
+}
+
+.proceso{
+color:orange;
+}
+
+.pendiente{
+color:red;
+}
+
+.boton-volver{
+display:inline-block;
+margin-top:20px;
+padding:10px;
+background:#555;
+color:white;
+border-radius:6px;
+text-decoration:none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Historial de Plazos</h1>
+
+<div class="filtro">
+
+<form method="get">
+
+<label>Filtrar por mes</label>
+<select name="mes">
+
+<option value="">Todos</option>
+
+<option value="1">Enero</option>
+<option value="2">Febrero</option>
+<option value="3">Marzo</option>
+<option value="4">Abril</option>
+<option value="5">Mayo</option>
+<option value="6">Junio</option>
+<option value="7">Julio</option>
+<option value="8">Agosto</option>
+<option value="9">Septiembre</option>
+<option value="10">Octubre</option>
+<option value="11">Noviembre</option>
+<option value="12">Diciembre</option>
+
+</select>
+
+<br><br>
+
+<label>Filtrar por sección</label>
+<select name="seccion">
+
+<option value="">Todas</option>
+
+{% for s in secciones %}
+<option value="{{ s.id }}">{{ s.nombre_seccion }}</option>
+{% endfor %}
+
+</select>
+
+<br><br>
+
+<button type="submit">Filtrar</button>
+
+</form>
+
+</div>
+
+<div class="contenedor">
+
+{% for p in plazos %}
+
+<div class="tarjeta">
+
+<h3>{{ p.nombre_plazo }}</h3>
+
+<p><strong>Sección:</strong> {{ p.seccion.nombre_seccion }}</p>
+
+<p><strong>Fecha límite:</strong> {{ p.fecha_limite }}</p>
+
+<p><strong>Estado:</strong>
+
+{% if p.estado == "Cumplido" %}
+<span class="estado cumplido">Cumplido</span>
+
+{% elif p.estado == "En proceso" %}
+<span class="estado proceso">En proceso</span>
+
+{% else %}
+<span class="estado pendiente">Pendiente</span>
+{% endif %}
+
+</p>
+
+<p><strong>Radicado:</strong> {{ p.radicado|default:"—" }}</p>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+<a class="boton-volver" href="/">← Volver al panel</a>
+
+</body>
+</html>

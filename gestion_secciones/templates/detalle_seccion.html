@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Plazos de la Sección</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+
+body{
+font-family: Arial;
+margin:20px;
+background:#f4f4f4;
+}
+
+h1{
+margin-bottom:15px;
+}
+
+.contenedor{
+display:flex;
+flex-direction:column;
+gap:15px;
+}
+
+.tarjeta{
+background:white;
+padding:15px;
+border-radius:10px;
+box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+.estado{
+font-weight:bold;
+}
+
+.vencido{
+color:red;
+}
+
+.proceso{
+color:orange;
+}
+
+.cumplido{
+color:green;
+}
+
+.pendiente{
+color:gray;
+}
+
+.boton{
+display:inline-block;
+margin-top:10px;
+padding:10px;
+background:#2c3e50;
+color:white;
+border-radius:6px;
+text-decoration:none;
+}
+
+.boton-volver{
+display:inline-block;
+margin-top:20px;
+padding:10px;
+background:#555;
+color:white;
+border-radius:6px;
+text-decoration:none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Sección: {{ seccion.nombre_seccion }}</h1>
+
+<div class="contenedor">
+
+{% for p in plazos %}
+
+<div class="tarjeta">
+
+<h3>{{ p.nombre_plazo }}</h3>
+
+<p><strong>Fecha límite:</strong> {{ p.fecha_limite }}</p>
+
+<p><strong>Estado:</strong>
+
+{% if p.estado == "Cumplido" %}
+<span class="estado cumplido">Cumplido</span>
+
+{% elif p.fecha_limite < today %}
+<span class="estado vencido">⚠ VENCIDO</span>
+
+{% elif p.estado == "En proceso" %}
+<span class="estado proceso">En proceso</span>
+
+{% else %}
+<span class="estado pendiente">Pendiente</span>
+{% endif %}
+
+</p>
+
+<p><strong>Radicado:</strong> {{ p.radicado|default:"—" }}</p>
+
+<a class="boton" href="/plazo/{{ p.id }}/editar/">Editar</a>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+<a class="boton-volver" href="/">← Volver al panel</a>
+
+</body>
+</html>

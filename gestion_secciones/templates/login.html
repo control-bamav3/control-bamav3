@@ -1,31 +1,104 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-<title>Ingreso al sistema</title>
+    <meta charset="UTF-8">
+    <title>Ingreso</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {% load static %}
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            background: url("https://images.unsplash.com/photo-1529070538774-1843cb3265df") no-repeat center center/cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .login-container {
+            position: relative;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 350px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            text-align: center;
+            z-index: 2;
+        }
+
+        .logo {
+            width: 80px;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            margin-bottom: 10px;
+            color: #1e3c72;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #1e3c72;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #16335c;
+        }
+    </style>
 </head>
 
 <body>
 
-<h2>Ingreso al Panel de Cumplimiento</h2>
+<div class="overlay"></div>
 
-<form method="post">
-{% csrf_token %}
+<div class="login-container">
 
-<label>Usuario</label>
-<br>
-<input type="text" name="username">
+    <img src="{% static 'img/logo.png' %}" alt="Logo" class="logo">
 
-<br><br>
+    <h2>CUMPLIMIENTO DE PLAZOS BAMAV3 MI-17</h2>
+    <div class="subtitle">Acceso al sistema</div>
 
-<label>Contraseña</label>
-<br>
-<input type="password" name="password">
+    <form method="post">
+        {% csrf_token %}
 
-<br><br>
+        <input type="text" name="username" placeholder="Usuario" required>
+        <input type="password" name="password" placeholder="Contraseña" required>
 
-<button type="submit">Entrar</button>
-
-</form>
+        <button type="submit">Ingresar</button>
+    </form>
+</div>
 
 </body>
 </html>

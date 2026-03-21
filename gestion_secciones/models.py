@@ -5,21 +5,23 @@ from django.core.validators import MinLengthValidator
 from django.core.exceptions import ValidationError
 
 
-
 class Seccion(models.Model):
 
     nombre_seccion = models.CharField(max_length=50)
-
     responsable = models.CharField(max_length=100)
-
     usuarios = models.ManyToManyField(User, blank=True)
 
     def porcentaje_cumplimiento(self):
 
-        plazos = Plazo.objects.filter(seccion=self)
+        hoy = date.today()
+
+        plazos = Plazo.objects.filter(
+            seccion=self,
+            fecha_limite__month=hoy.month,
+            fecha_limite__year=hoy.year
+        )
 
         total = plazos.count()
-
         cumplidos = plazos.filter(estado="Cumplido").count()
 
         if total == 0:
@@ -28,10 +30,25 @@ class Seccion(models.Model):
         return int((cumplidos / total) * 100)
 
     def total_plazos(self):
-        return Plazo.objects.filter(seccion=self).count()
+
+        hoy = date.today()
+
+        return Plazo.objects.filter(
+            seccion=self,
+            fecha_limite__month=hoy.month,
+            fecha_limite__year=hoy.year
+        ).count()
 
     def plazos_cumplidos(self):
-        return Plazo.objects.filter(seccion=self, estado="Cumplido").count()
+
+        hoy = date.today()
+
+        return Plazo.objects.filter(
+            seccion=self,
+            estado="Cumplido",
+            fecha_limite__month=hoy.month,
+            fecha_limite__year=hoy.year
+        ).count()
 
     def __str__(self):
         return self.nombre_seccion
@@ -51,6 +68,8 @@ class Plazo(models.Model):
         ],
         default='Mensual'
     )
+
+    periodo = models.DateField(null=True, blank=True)
 
     fecha_limite = models.DateField()
     fecha_cumplimiento = models.DateField(null=True, blank=True)
@@ -90,8 +109,14 @@ class Plazo(models.Model):
         # ejecutar validaciones
         self.full_clean()
 
+        hoy = date.today()
+
+        # asignar periodo automáticamente (primer día del mes)
+        if not self.periodo:
+            self.periodo = date(hoy.year, hoy.month, 1)
+
         if self.estado != "Cumplido":
-            if self.fecha_limite < date.today():
+            if self.fecha_limite < hoy:
                 self.estado = "Pendiente"
 
         super().save(*args, **kwargs)

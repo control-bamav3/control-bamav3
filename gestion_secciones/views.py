@@ -1,32 +1,20 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from .models import Seccion, Plazo
-import datetime
-from datetime import date
 from django.shortcuts import render, redirect
+from .models import Seccion, Plazo
+from datetime import date
 from django.core.exceptions import ValidationError
+
 
 @login_required
 def dashboard(request):
 
-    mes_actual = datetime.datetime.now().month
+    hoy = date.today()
 
-    plazos = Plazo.objects.all()
-
-    plazos_filtrados = []
-
-    for plazo in plazos:
-
-        if plazo.tipo_plazo == "Mensual":
-            plazos_filtrados.append(plazo)
-
-        elif plazo.tipo_plazo == "Trimestral":
-            if mes_actual in [3, 6, 9, 12]:
-                plazos_filtrados.append(plazo)
-
-        elif plazo.tipo_plazo == "Semestral":
-            if mes_actual in [6, 12]:
-                plazos_filtrados.append(plazo)
+    # 🔥 FILTRAR SOLO MES ACTUAL
+    plazos = Plazo.objects.filter(
+        fecha_limite__month=hoy.month,
+        fecha_limite__year=hoy.year
+    )
 
     # FILTRO POR USUARIO
     if request.user.is_superuser:
@@ -34,10 +22,18 @@ def dashboard(request):
     else:
         secciones = Seccion.objects.filter(usuarios=request.user)
 
-    cumplidos = len([p for p in plazos_filtrados if p.estado == "Cumplido"])
-    en_proceso = len([p for p in plazos_filtrados if p.estado == "En proceso"])
-    pendientes = len([p for p in plazos_filtrados if p.estado == "Pendiente" and p.fecha_limite >= date.today()])
-    vencidos = len([p for p in plazos_filtrados if p.estado != "Cumplido" and p.fecha_limite < date.today()])
+    # 🔥 CONTADORES CORRECTOS (SOLO MES ACTUAL)
+    cumplidos = plazos.filter(estado="Cumplido").count()
+    en_proceso = plazos.filter(estado="En proceso").count()
+    pendientes = plazos.filter(
+        estado="Pendiente",
+        fecha_limite__gte=hoy
+    ).count()
+
+    vencidos = plazos.filter(
+        estado__in=["Pendiente", "En proceso"],
+        fecha_limite__lt=hoy
+    ).count()
 
     nombres_secciones = []
     porcentajes = []
@@ -68,17 +64,27 @@ def dashboard(request):
         "colores": colores
     })
 
+
 @login_required
 def detalle_seccion(request, id):
 
+    hoy = date.today()
+
     seccion = Seccion.objects.get(id=id)
-    plazos = Plazo.objects.filter(seccion=seccion)
+
+    # 🔥 SOLO MES ACTUAL
+    plazos = Plazo.objects.filter(
+        seccion=seccion,
+        fecha_limite__month=hoy.month,
+        fecha_limite__year=hoy.year
+    )
 
     return render(request, "detalle_seccion.html", {
         "seccion": seccion,
         "plazos": plazos,
-        "today": date.today()
+        "today": hoy
     })
+
 
 @login_required
 def historial(request):
@@ -101,7 +107,6 @@ def historial(request):
         "secciones": secciones
     })
 
-from django.shortcuts import redirect
 
 @login_required
 def editar_plazo(request, id):
@@ -131,4 +136,3 @@ def editar_plazo(request, id):
         "plazo": plazo,
         "error": error
     })
-
